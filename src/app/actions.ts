@@ -1,28 +1,32 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
+import { addTodo, deleteTodo, toggleTodo } from "@/di/container";
+import { DomainError } from "@/domain/todo/errors";
 
-export async function addTodo(formData: FormData) {
-  const text = String(formData.get("text") ?? "").trim();
-  if (!text) return;
-
-  db.prepare("INSERT INTO todos (text) VALUES (?)").run(text);
-  revalidatePath("/");
+export async function addTodoAction(formData: FormData) {
+  await run(() => addTodo.execute(String(formData.get("text") ?? "")));
 }
 
-export async function toggleTodo(formData: FormData) {
-  const id = Number(formData.get("id"));
-  if (!Number.isInteger(id)) return;
-
-  db.prepare("UPDATE todos SET done = 1 - done WHERE id = ?").run(id);
-  revalidatePath("/");
+export async function toggleTodoAction(formData: FormData) {
+  await run(() => toggleTodo.execute(String(formData.get("id") ?? "")));
 }
 
-export async function deleteTodo(formData: FormData) {
-  const id = Number(formData.get("id"));
-  if (!Number.isInteger(id)) return;
+export async function deleteTodoAction(formData: FormData) {
+  await run(() => deleteTodo.execute(String(formData.get("id") ?? "")));
+}
 
-  db.prepare("DELETE FROM todos WHERE id = ?").run(id);
+/**
+ * ユースケースを実行し、成功したら一覧を再検証する。
+ * ドメインのルール違反（空入力など）は現状どおり黙って無視する。
+ */
+async function run(useCase: () => Promise<void>) {
+  try {
+    await useCase();
+  } catch (error) {
+    if (error instanceof DomainError) return;
+    throw error;
+  }
+
   revalidatePath("/");
 }
