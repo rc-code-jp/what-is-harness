@@ -1,3 +1,5 @@
+import { toCategoryDto, type CategoryDto } from "@/application/category/category-dto";
+import type { Category } from "@/domain/category/category";
 import type { Todo } from "@/domain/todo/todo";
 
 /**
@@ -8,12 +10,15 @@ export type TodoDto = {
   id: string;
   text: string;
   done: boolean;
+  /** 未分類は null */
+  category: CategoryDto | null;
 };
 
-export function toTodoDto(todo: Todo): TodoDto {
+export function toTodoDto(todo: Todo, category: Category | null): TodoDto {
   return {
     id: todo.id.value,
     text: todo.text.value,
     done: todo.done,
+    category: category === null ? null : toCategoryDto(category),
   };
 }

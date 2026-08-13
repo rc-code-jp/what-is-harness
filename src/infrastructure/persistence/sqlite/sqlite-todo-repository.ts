@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { CategoryId } from "@/domain/category/category-id";
 import { Todo } from "@/domain/todo/todo";
 import { TodoId } from "@/domain/todo/todo-id";
 import type { TodoRepository } from "@/domain/todo/todo-repository";
@@ -8,6 +9,7 @@ type TodoRow = {
   id: string;
   text: string;
   done: number;
+  category_id: string | null;
 };
 
 /** SQL とドメインの変換をここに閉じ込める。SQL が現れるのはこのファイルだけ */
@@ -17,7 +19,7 @@ export class SqliteTodoRepository implements TodoRepository {
   async findAll(): Promise<Todo[]> {
     // rowid は挿入順なので、追加した順に並ぶ
     const rows = this.db
-      .prepare("SELECT id, text, done FROM todos ORDER BY rowid")
+      .prepare("SELECT id, text, done, category_id FROM todos ORDER BY rowid")
       .all() as unknown as TodoRow[];
 
     return rows.map(toTodo);
@@ -25,7 +27,7 @@ export class SqliteTodoRepository implements TodoRepository {
 
   async findById(id: TodoId): Promise<Todo | null> {
     const row = this.db
-      .prepare("SELECT id, text, done FROM todos WHERE id = ?")
+      .prepare("SELECT id, text, done, category_id FROM todos WHERE id = ?")
       .get(id.value) as unknown as TodoRow | undefined;
 
     return row ? toTodo(row) : null;
@@ -34,10 +36,11 @@ export class SqliteTodoRepository implements TodoRepository {
   async save(todo: Todo): Promise<void> {
     this.db
       .prepare(
-        `INSERT INTO todos (id, text, done) VALUES (?, ?, ?)
-         ON CONFLICT(id) DO UPDATE SET text = excluded.text, done = excluded.done`,
+        `INSERT INTO todos (id, text, done, category_id) VALUES (?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           text = excluded.text, done = excluded.done, category_id = excluded.category_id`,
       )
-      .run(todo.id.value, todo.text.value, todo.done ? 1 : 0);
+      .run(todo.id.value, todo.text.value, todo.done ? 1 : 0, todo.categoryId?.value ?? null);
   }
 
   async delete(id: TodoId): Promise<void> {
@@ -46,5 +49,10 @@ export class SqliteTodoRepository implements TodoRepository {
 }
 
 function toTodo(row: TodoRow): Todo {
-  return Todo.reconstruct(TodoId.create(row.id), TodoText.create(row.text), row.done !== 0);
+  return Todo.reconstruct(
+    TodoId.create(row.id),
+    TodoText.create(row.text),
+    row.done !== 0,
+    row.category_id === null ? null : CategoryId.create(row.category_id),
+  );
 }

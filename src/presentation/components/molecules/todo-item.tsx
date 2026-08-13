@@ -23,6 +23,8 @@ export function TodoItem({ todo, onToggle, onDelete }: Props) {
 
       <span className={classNames(styles.text, todo.done && styles.done)}>{todo.text}</span>
 
+      {todo.category && <span className={styles.category}>{todo.category.name}</span>}
+
       <form action={onDelete}>
         <input type="hidden" name="id" value={todo.id} />
         <IconButton type="submit" tone="danger" aria-label="削除">
