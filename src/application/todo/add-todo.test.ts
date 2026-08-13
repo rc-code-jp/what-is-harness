@@ -3,7 +3,7 @@ import { Category } from "@/domain/category/category";
 import { CategoryId } from "@/domain/category/category-id";
 import { CategoryName } from "@/domain/category/category-name";
 import { CategoryNotFoundError } from "@/domain/category/errors";
-import { InvalidTodoTextError } from "@/domain/todo/errors";
+import { InvalidDueDateError, InvalidTodoTextError } from "@/domain/todo/errors";
 import { SequentialTodoIdGenerator } from "@/infrastructure/id/sequential-todo-id-generator";
 import { InMemoryCategoryRepository } from "@/infrastructure/persistence/in-memory-category-repository";
 import { InMemoryTodoRepository } from "@/infrastructure/persistence/in-memory-todo-repository";
@@ -79,6 +79,31 @@ describe("AddTodo", () => {
 
     await expect(addTodo.execute("牛乳を買う", "category-999")).rejects.toThrow(
       CategoryNotFoundError,
+    );
+    expect(await todos.findAll()).toHaveLength(0);
+  });
+
+  it("指定した期限を付けて保存する", async () => {
+    const { todos, addTodo } = setup();
+
+    await addTodo.execute("牛乳を買う", "", "2026-08-13");
+
+    expect((await todos.findAll())[0].dueDate?.value).toBe("2026-08-13");
+  });
+
+  it("期限を指定しなければ期限なしで保存する", async () => {
+    const { todos, addTodo } = setup();
+
+    await addTodo.execute("牛乳を買う");
+
+    expect((await todos.findAll())[0].dueDate).toBeNull();
+  });
+
+  it("不正な期限は保存しない", async () => {
+    const { todos, addTodo } = setup();
+
+    await expect(addTodo.execute("牛乳を買う", "", "2026-02-31")).rejects.toThrow(
+      InvalidDueDateError,
     );
     expect(await todos.findAll()).toHaveLength(0);
   });

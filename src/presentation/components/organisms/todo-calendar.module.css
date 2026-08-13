@@ -1,0 +1,35 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.label {
+  min-width: 8rem;
+  font-size: 1.125rem;
+  margin: 0;
+  text-align: center;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 6px;
+  color: #666;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.weekday {
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: #666;
+}

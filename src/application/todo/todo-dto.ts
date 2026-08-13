@@ -12,6 +12,8 @@ export type TodoDto = {
   done: boolean;
   /** 未分類は null */
   category: CategoryDto | null;
+  /** 期限なしは null。形式は YYYY-MM-DD */
+  dueDate: string | null;
 };
 
 export function toTodoDto(todo: Todo, category: Category | null): TodoDto {
@@ -20,5 +22,6 @@ export function toTodoDto(todo: Todo, category: Category | null): TodoDto {
     text: todo.text.value,
     done: todo.done,
     category: category === null ? null : toCategoryDto(category),
+    dueDate: todo.dueDate?.value ?? null,
   };
 }

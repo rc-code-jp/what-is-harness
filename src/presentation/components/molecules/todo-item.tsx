@@ -1,7 +1,8 @@
-import { Square, SquareCheckBig, Trash2 } from "lucide-react";
+import { CalendarCheck, Square, SquareCheckBig, Trash2 } from "lucide-react";
 import type { TodoDto } from "@/application/todo/todo-dto";
 import { classNames } from "@/presentation/class-names";
 import type { FormAction } from "@/presentation/form-action";
+import { DateInput } from "../atoms/date-input";
 import { IconButton } from "../atoms/icon-button";
 import styles from "./todo-item.module.css";
 
@@ -9,9 +10,10 @@ type Props = {
   todo: TodoDto;
   onToggle: FormAction;
   onDelete: FormAction;
+  onChangeDueDate: FormAction;
 };
 
-export function TodoItem({ todo, onToggle, onDelete }: Props) {
+export function TodoItem({ todo, onToggle, onDelete, onChangeDueDate }: Props) {
   return (
     <li className={styles.item}>
       <form action={onToggle}>
@@ -24,6 +26,20 @@ export function TodoItem({ todo, onToggle, onDelete }: Props) {
       <span className={classNames(styles.text, todo.done && styles.done)}>{todo.text}</span>
 
       {todo.category && <span className={styles.category}>{todo.category.name}</span>}
+
+      {/* 空のまま送ると期限なしに戻る */}
+      <form action={onChangeDueDate} className={styles.dueDateForm}>
+        <input type="hidden" name="id" value={todo.id} />
+        <DateInput
+          name="dueDate"
+          defaultValue={todo.dueDate ?? ""}
+          aria-label={`${todo.text} の期限`}
+          className={styles.dueDate}
+        />
+        <IconButton type="submit" aria-label="期限を更新">
+          <CalendarCheck size={16} />
+        </IconButton>
+      </form>
 
       <form action={onDelete}>
         <input type="hidden" name="id" value={todo.id} />

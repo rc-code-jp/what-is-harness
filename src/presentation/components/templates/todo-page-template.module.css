@@ -1,5 +1,5 @@
 .main {
-  max-width: 32rem;
+  max-width: 44rem;
   margin: 0 auto;
 }
 
@@ -12,9 +12,4 @@
   margin-top: 2.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid #ebebeb;
-}
-
-.subtitle {
-  font-size: 1.125rem;
-  margin: 0 0 1rem;
 }

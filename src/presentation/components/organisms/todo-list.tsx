@@ -7,9 +7,10 @@ type Props = {
   todos: TodoDto[];
   onToggle: FormAction;
   onDelete: FormAction;
+  onChangeDueDate: FormAction;
 };
 
-export function TodoList({ todos, onToggle, onDelete }: Props) {
+export function TodoList({ todos, onToggle, onDelete, onChangeDueDate }: Props) {
   if (todos.length === 0) {
     return <p className={styles.empty}>まだ何もありません</p>;
   }
@@ -17,7 +18,13 @@ export function TodoList({ todos, onToggle, onDelete }: Props) {
   return (
     <ul className={styles.list}>
       {todos.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} onToggle={onToggle} onDelete={onDelete} />
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onToggle={onToggle}
+          onDelete={onDelete}
+          onChangeDueDate={onChangeDueDate}
+        />
       ))}
     </ul>
   );
