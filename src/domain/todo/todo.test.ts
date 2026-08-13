@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CategoryId } from "@/domain/category/category-id";
+import { DueDate } from "./due-date";
 import { Todo } from "./todo";
 import { TodoId } from "./todo-id";
 import { TodoText } from "./todo-text";
@@ -15,6 +16,10 @@ describe("Todo", () => {
 
   it("カテゴリーを指定しなければ未分類", () => {
     expect(createTodo().categoryId).toBeNull();
+  });
+
+  it("期限を指定しなければ期限なし", () => {
+    expect(createTodo().dueDate).toBeNull();
   });
 
   it("toggle は自身を変更せず、反転した新しいインスタンスを返す", () => {
@@ -51,5 +56,26 @@ describe("Todo", () => {
     const todo = createTodo().withCategory(CategoryId.create("category-1"));
 
     expect(todo.withCategory(null).categoryId).toBeNull();
+  });
+
+  it("withDueDate は自身を変更せず、期限を付け替えた新しいインスタンスを返す", () => {
+    const todo = createTodo();
+    const scheduled = todo.withDueDate(DueDate.create("2026-08-13"));
+
+    expect(scheduled.dueDate?.value).toBe("2026-08-13");
+    expect(todo.dueDate).toBeNull();
+    expect(scheduled).not.toBe(todo);
+  });
+
+  it("withDueDate(null) で期限なしに戻せる", () => {
+    const todo = createTodo().withDueDate(DueDate.create("2026-08-13"));
+
+    expect(todo.withDueDate(null).dueDate).toBeNull();
+  });
+
+  it("toggle しても期限は変わらない", () => {
+    const todo = createTodo().withDueDate(DueDate.create("2026-08-13"));
+
+    expect(todo.toggle().dueDate?.value).toBe("2026-08-13");
   });
 });

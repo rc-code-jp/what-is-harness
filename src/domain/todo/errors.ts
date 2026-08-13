@@ -10,4 +10,6 @@ export class InvalidTodoTextError extends DomainError {}
 
 export class InvalidTodoIdError extends DomainError {}
 
+export class InvalidDueDateError extends DomainError {}
+
 export class TodoNotFoundError extends DomainError {}

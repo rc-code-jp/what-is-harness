@@ -7,6 +7,9 @@ function createDb() {
   mkdirSync(dir, { recursive: true });
 
   const db = new DatabaseSync(path.join(dir, "todos.db"));
+  // ビルド時はページごとに別プロセスが同じ DB を開くため、
+  // ロックが取れないときは即エラーにせず待たせる
+  db.exec("PRAGMA busy_timeout = 5000");
   db.exec("PRAGMA journal_mode = WAL");
   db.exec(`
     CREATE TABLE IF NOT EXISTS categories (
@@ -19,19 +22,23 @@ function createDb() {
       id TEXT PRIMARY KEY,
       text TEXT NOT NULL,
       done INTEGER NOT NULL DEFAULT 0,
-      category_id TEXT
+      category_id TEXT,
+      due_date TEXT
     )
   `);
-  addCategoryIdColumn(db);
+  addMissingTodoColumns(db);
   return db;
 }
 
-/** カテゴリー導入前に作られた todos テーブルには category_id が無いので後から足す */
-function addCategoryIdColumn(db: DatabaseSync) {
+/** 機能追加より前に作られた todos テーブルには列が無いので、足りない分だけ後から足す */
+function addMissingTodoColumns(db: DatabaseSync) {
   const columns = db.prepare("PRAGMA table_info(todos)").all() as unknown as { name: string }[];
+  const existing = new Set(columns.map((column) => column.name));
 
-  if (!columns.some((column) => column.name === "category_id")) {
-    db.exec("ALTER TABLE todos ADD COLUMN category_id TEXT");
+  for (const name of ["category_id", "due_date"]) {
+    if (!existing.has(name)) {
+      db.exec(`ALTER TABLE todos ADD COLUMN ${name} TEXT`);
+    }
   }
 }
 

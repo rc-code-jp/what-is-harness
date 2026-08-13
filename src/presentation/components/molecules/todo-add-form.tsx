@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import type { CategoryDto } from "@/application/category/category-dto";
 import type { FormAction } from "@/presentation/form-action";
 import { Button } from "../atoms/button";
+import { DateInput } from "../atoms/date-input";
 import { Select } from "../atoms/select";
 import { TextInput } from "../atoms/text-input";
 import styles from "./todo-add-form.module.css";
@@ -28,6 +29,7 @@ export function TodoAddForm({ categories, action }: Props) {
           </option>
         ))}
       </Select>
+      <DateInput name="dueDate" aria-label="期限を指定" />
       <Button type="submit">
         <Plus size={18} aria-hidden />
         追加

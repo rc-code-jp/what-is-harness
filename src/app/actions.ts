@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   addCategory,
   addTodo,
+  changeTodoDueDate,
   deleteCategory,
   deleteTodo,
   toggleTodo,
@@ -15,6 +16,7 @@ export async function addTodoAction(formData: FormData) {
     addTodo.execute(
       String(formData.get("text") ?? ""),
       String(formData.get("categoryId") ?? ""),
+      String(formData.get("dueDate") ?? ""),
     ),
   );
 }
@@ -27,6 +29,15 @@ export async function deleteTodoAction(formData: FormData) {
   await run(() => deleteTodo.execute(String(formData.get("id") ?? "")));
 }
 
+export async function changeTodoDueDateAction(formData: FormData) {
+  await run(() =>
+    changeTodoDueDate.execute(
+      String(formData.get("id") ?? ""),
+      String(formData.get("dueDate") ?? ""),
+    ),
+  );
+}
+
 export async function addCategoryAction(formData: FormData) {
   await run(() => addCategory.execute(String(formData.get("name") ?? "")));
 }
@@ -36,7 +47,8 @@ export async function deleteCategoryAction(formData: FormData) {
 }
 
 /**
- * ユースケースを実行し、成功したら一覧を再検証する。
+ * ユースケースを実行し、成功したら画面を再検証する。
+ * カテゴリー名は TODO 一覧にも出るので、layout 単位でまとめて再検証する。
  * ドメインのルール違反（空入力など）は現状どおり黙って無視する。
  */
 async function run(useCase: () => Promise<void>) {
@@ -47,5 +59,5 @@ async function run(useCase: () => Promise<void>) {
     throw error;
   }
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }

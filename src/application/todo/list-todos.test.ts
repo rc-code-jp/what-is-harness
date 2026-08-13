@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Category } from "@/domain/category/category";
 import { CategoryId } from "@/domain/category/category-id";
 import { CategoryName } from "@/domain/category/category-name";
+import { DueDate } from "@/domain/todo/due-date";
 import { Todo } from "@/domain/todo/todo";
 import { TodoId } from "@/domain/todo/todo-id";
 import { TodoText } from "@/domain/todo/todo-text";
@@ -16,6 +17,7 @@ describe("ListTodos", () => {
         TodoId.create("todo-1"),
         TodoText.create("牛乳を買う"),
         CategoryId.create("category-1"),
+        DueDate.create("2026-08-13"),
       ),
       Todo.create(TodoId.create("todo-2"), TodoText.create("卵を買う")).toggle(),
     ]);
@@ -24,8 +26,14 @@ describe("ListTodos", () => {
     ]);
 
     expect(await new ListTodos(todos, categories).execute()).toEqual([
-      { id: "todo-1", text: "牛乳を買う", done: false, category: { id: "category-1", name: "買い物" } },
-      { id: "todo-2", text: "卵を買う", done: true, category: null },
+      {
+        id: "todo-1",
+        text: "牛乳を買う",
+        done: false,
+        category: { id: "category-1", name: "買い物" },
+        dueDate: "2026-08-13",
+      },
+      { id: "todo-2", text: "卵を買う", done: true, category: null, dueDate: null },
     ]);
   });
 

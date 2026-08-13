@@ -1,46 +1,53 @@
 import type { CategoryDto } from "@/application/category/category-dto";
 import type { TodoDto } from "@/application/todo/todo-dto";
 import type { FormAction } from "@/presentation/form-action";
-import { CategoryAddForm } from "../molecules/category-add-form";
+import { PageNav } from "../molecules/page-nav";
 import { TodoAddForm } from "../molecules/todo-add-form";
-import { CategoryList } from "../organisms/category-list";
+import { TodoCalendar } from "../organisms/todo-calendar";
 import { TodoList } from "../organisms/todo-list";
 import styles from "./todo-page-template.module.css";
 
 type Props = {
   todos: TodoDto[];
   categories: CategoryDto[];
+  /** カレンダーに表示する月。YYYY-MM */
+  month: string;
+  /** 今日。YYYY-MM-DD */
+  today: string;
   onAdd: FormAction;
   onToggle: FormAction;
   onDelete: FormAction;
-  onAddCategory: FormAction;
-  onDeleteCategory: FormAction;
+  onChangeDueDate: FormAction;
 };
 
 export function TodoPageTemplate({
   todos,
   categories,
+  month,
+  today,
   onAdd,
   onToggle,
   onDelete,
-  onAddCategory,
-  onDeleteCategory,
+  onChangeDueDate,
 }: Props) {
   return (
     <main className={styles.main}>
       <h1 className={styles.title}>TODO</h1>
 
+      <PageNav current="/" />
+
       <TodoAddForm categories={categories} action={onAdd} />
 
-      <TodoList todos={todos} onToggle={onToggle} onDelete={onDelete} />
+      <TodoList
+        todos={todos}
+        onToggle={onToggle}
+        onDelete={onDelete}
+        onChangeDueDate={onChangeDueDate}
+      />
 
-      <section className={styles.section}>
-        <h2 className={styles.subtitle}>カテゴリー</h2>
-
-        <CategoryAddForm action={onAddCategory} />
-
-        <CategoryList categories={categories} onDelete={onDeleteCategory} />
-      </section>
+      <div className={styles.section}>
+        <TodoCalendar todos={todos} month={month} today={today} />
+      </div>
     </main>
   );
 }

@@ -1,5 +1,6 @@
 .item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
@@ -11,6 +12,7 @@
 
 .text {
   flex: 1;
+  min-width: 8rem;
 }
 
 .done {
@@ -26,4 +28,15 @@
   background: #f0f0f0;
   color: #666;
   white-space: nowrap;
+}
+
+.dueDateForm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dueDate {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
 }
