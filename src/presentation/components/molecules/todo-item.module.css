@@ -17,3 +17,13 @@
   text-decoration: line-through;
   color: #999;
 }
+
+.category {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  border-radius: 999px;
+  background: #f0f0f0;
+  color: #666;
+  white-space: nowrap;
+}

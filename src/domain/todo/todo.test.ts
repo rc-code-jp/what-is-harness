@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CategoryId } from "@/domain/category/category-id";
 import { Todo } from "./todo";
 import { TodoId } from "./todo-id";
 import { TodoText } from "./todo-text";
@@ -10,6 +11,10 @@ function createTodo() {
 describe("Todo", () => {
   it("作成直後は未完了", () => {
     expect(createTodo().done).toBe(false);
+  });
+
+  it("カテゴリーを指定しなければ未分類", () => {
+    expect(createTodo().categoryId).toBeNull();
   });
 
   it("toggle は自身を変更せず、反転した新しいインスタンスを返す", () => {
@@ -31,5 +36,20 @@ describe("Todo", () => {
 
     expect(toggled.id.equals(todo.id)).toBe(true);
     expect(toggled.text.equals(todo.text)).toBe(true);
+  });
+
+  it("withCategory は自身を変更せず、カテゴリーを付け替えた新しいインスタンスを返す", () => {
+    const todo = createTodo();
+    const categorized = todo.withCategory(CategoryId.create("category-1"));
+
+    expect(categorized.categoryId?.value).toBe("category-1");
+    expect(todo.categoryId).toBeNull();
+    expect(categorized).not.toBe(todo);
+  });
+
+  it("withCategory(null) で未分類に戻せる", () => {
+    const todo = createTodo().withCategory(CategoryId.create("category-1"));
+
+    expect(todo.withCategory(null).categoryId).toBeNull();
   });
 });

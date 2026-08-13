@@ -1,3 +1,6 @@
+import { CategoryId } from "@/domain/category/category-id";
+import type { CategoryRepository } from "@/domain/category/category-repository";
+import { CategoryNotFoundError } from "@/domain/category/errors";
 import { Todo } from "@/domain/todo/todo";
 import type { TodoIdGenerator } from "@/domain/todo/todo-id-generator";
 import type { TodoRepository } from "@/domain/todo/todo-repository";
@@ -6,13 +9,32 @@ import { TodoText } from "@/domain/todo/todo-text";
 export class AddTodo {
   constructor(
     private readonly todos: TodoRepository,
+    private readonly categories: CategoryRepository,
     private readonly idGenerator: TodoIdGenerator,
   ) {}
 
-  /** 入力が不正な場合は InvalidTodoTextError を投げる */
-  async execute(rawText: string): Promise<void> {
+  /**
+   * 入力が不正な場合は InvalidTodoTextError、
+   * 存在しないカテゴリーを指定された場合は CategoryNotFoundError を投げる。
+   * rawCategoryId が空なら未分類として扱う。
+   */
+  async execute(rawText: string, rawCategoryId = ""): Promise<void> {
     const text = TodoText.create(rawText);
-    const todo = Todo.create(this.idGenerator.next(), text);
+    const categoryId = await this.resolveCategoryId(rawCategoryId);
+    const todo = Todo.create(this.idGenerator.next(), text, categoryId);
     await this.todos.save(todo);
+  }
+
+  private async resolveCategoryId(rawCategoryId: string): Promise<CategoryId | null> {
+    if (rawCategoryId.trim().length === 0) {
+      return null;
+    }
+
+    const id = CategoryId.create(rawCategoryId);
+    if ((await this.categories.findById(id)) === null) {
+      throw new CategoryNotFoundError(`カテゴリーが見つかりません: ${id.value}`);
+    }
+
+    return id;
   }
 }
